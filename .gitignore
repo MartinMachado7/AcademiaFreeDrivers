@@ -1,0 +1,10 @@
+# Entorno virtual y dependencias locales
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# 🔒 SEGURIDAD CRÍTICA PARA REPOSITORIO PÚBLICO
+serviceAccountKey.json
+.env

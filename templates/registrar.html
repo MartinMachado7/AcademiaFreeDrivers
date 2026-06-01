@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+<div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                
+                <div class="card card-moderna mb-5">
+                    <div class="card-header-custom">
+                        <h4 class="fw-bold mb-1 text-dark">Matrícula de Usuarios</h4>
+                        <p class="text-muted small mb-0">Registra estudiantes y profesores asignando sus roles iniciales</p>
+                    </div>
+                    <div class="card-body p-4">
+                        
+                        <form action="/academia/registrar" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Nombre Completo</label>
+                                <input type="text" class="form-control form-control-custom" name="nuevo_nombre" placeholder="Ej: María Gómez" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Nombre de Usuario (Para el login)</label>
+                                <input type="text" class="form-control form-control-custom" name="nuevo_usuario" placeholder="Ej: maria_estudiante" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Rol del Usuario</label>
+                                <select class="form-select form-control-custom" name="nuevo_rol" required>
+                                    <option value="" disabled selected>Selecciona un rol...</option>
+                                    <option value="estudiante">Estudiante</option>
+                                    <option value="profesor">Profesor</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold small">Contraseña Temporal</label>
+                                <input type="password" class="form-control form-control-custom" name="nueva_clave" placeholder="••••••••" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-moderno w-100 mb-2">Dar de Alta en la Plataforma</button>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

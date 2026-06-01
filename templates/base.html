@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- LOGO Favicon-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión Vial</title> <link rel="icon" type="image/png" href="{{ url_for('static', filename='imagenes/freeDriver.png') }}">
+    <!-- Esta línea es obligatoria para que el diseño se adapte bien a celulares -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia Free Driver Trasporte </title>
+    <!-- Bootstrap CSS -->
+     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <nav class="navbar navbar-expand-lg navbar-custom shadow-sm mb-5">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{{ url_for('static', filename='imagenes/freeDriver.png') }}" alt="Logo" width="36" height="36" class="me-2">
+                <span>ACADEMIA <span style="color: var(--color-primario);">FREE DRIVERS TRANSPORTE</span></span>
+            </a>
+            {% block navbar_botones %}{% endblock %}
+        </div>
+    </nav>
+    {% block contenido %}
+    {% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

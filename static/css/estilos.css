@@ -1,0 +1,90 @@
+/* 1. Variables de entorno para cambiar colores fácilmente */
+:root {
+    --color-fondo: #f8fafc;       /* Gris ultra claro moderno */
+    --color-primario: #a50808;    /* Azul eléctrico moderno */
+    --color-primario-hover: #5d5d5f;
+    --color-texto-oscuro: #0f172a;/* Negro pizarra para textos principales */
+    --color-texto-mutado: #64748b;/* Gris para textos secundarios */
+    --borde-redondeado: 12px;     /* Bordes suaves en lugar de esquinas rectas */
+    --sombra-suave: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --sombra-tarjeta: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* 2. Estilos Generales del Cuerpo */
+body {
+    background-color: var(--color-fondo);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--color-texto-oscuro);
+    min-height: 100vh;
+}
+
+/* 3. Personalización de la Barra de Navegación */
+.navbar-custom {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 15px 0;
+}
+
+.navbar-custom .navbar-brand {
+    color: var(--color-texto-oscuro) !important;
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: -0.5px;
+}
+
+/* 4. Tarjetas Modernas (Efecto Glassmorphism sutil) */
+.card-moderna {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--borde-redondeado);
+    shadow: none;
+    box-shadow: var(--sombra-tarjeta);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Efecto visual al pasar el mouse sobre la tarjeta */
+.card-moderna:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.card-moderna .card-header-custom {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 20px;
+    border-top-left-radius: var(--borde-redondeado);
+    border-top-right-radius: var(--borde-redondeado);
+    text-align: center;
+}
+
+/* 5. Inputs y Campos de Formulario Estilizados */
+.form-control-custom {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: all 0.2s ease;
+}
+
+/* Cuando el usuario hace clic en el cuadro de texto */
+.form-control-custom:focus {
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+
+/* 6. Botones Premium con transiciones */
+.btn-moderno {
+    background-color: var(--color-primario);
+    color: white;
+    font-weight: 600;
+    padding: 11px;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-moderno:hover {
+    background-color: var(--color-primario-hover);
+    color: white;
+    cursor: pointer;
+}

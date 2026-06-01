@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+<div class="container my-auto mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card card-moderna">
+                <div class="card-header-custom">
+                    <h4 class="fw-bold mb-1" style="color: var(--color-texto-oscuro);">¡Bienvenido de nuevo!</h4>
+                    <p class="text-muted small mb-0">Ingresa tus credenciales registradas</p>
+                </div>
+                <div class="card-body p-4">
+                    <form action="/login" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Usuario asignado</label>
+                            <input type="text" class="form-control form-control-custom" name="usuario_ingresado" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small">Contraseña</label>
+                            <input type="password" class="form-control form-control-custom" name="clave_ingresada" required>
+                        </div>
+                        <button type="submit" class="btn btn-moderno w-100 mb-3">Ingresar al Sistema</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

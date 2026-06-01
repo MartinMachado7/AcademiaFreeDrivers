@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+
+{% block navbar_botones %}
+<div class="d-flex align-items-center">
+    <span class="text-muted me-3 bg-light px-3 py-1 rounded-pill small fw-bold text-uppercase">Rol: {{ usuario.rol }}</span>
+    <a href="/logout" class="btn btn-danger btn-sm px-3">Cerrar Sesión</a>
+</div>
+{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4">
+    
+    <div class="bg-white p-4 rounded-3 border shadow-sm mb-4">
+        <h2 class="fw-bold mb-1">Bienvenido, {{ usuario.nombre }} 👋</h2>
+        <p class="text-muted mb-0">Gestión de flujo de prerrequisitos académicos en tiempo real.</p>
+    </div>
+
+    <!-- ================= VISTA: ESTUDIANTE ================= -->
+    {% if usuario.rol == 'estudiante' %}
+    
+    <div class="row mb-4 g-3">
+        <div class="col-md-6">
+            <div class="p-3 rounded border {% if examenes.get(usuario.username, {}).get('teorico') == 'Aprobado' %}bg-success-subtle{% elif examenes.get(usuario.username, {}).get('teorico') == 'Asignado' %}bg-warning-subtle{% else %}bg-light{% endif %}">
+                <strong>Examen Teórico:</strong> 
+                <span class="badge bg-dark">{{ examenes.get(usuario.username, {}).get('teorico', 'No Asignado') }}</span>
+                {% if modulo_clases.tiene_todas_teoricas_completas(usuario.username) and examenes.get(usuario.username, {}).get('teorico', 'No Asignado') == 'No Asignado' %}
+                    <p class="small text-muted mt-2 mb-0">💡 ¡Completaste tus clases! Acércate a recepción para solicitar tu examen.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="p-3 rounded border {% if examenes.get(usuario.username, {}).get('practico') == 'Aprobado' %}bg-success-subtle{% elif examenes.get(usuario.username, {}).get('practico') == 'Asignado' %}bg-warning-subtle{% else %}bg-light{% endif %}">
+                <strong>Examen Práctico:</strong> 
+                <span class="badge bg-dark">{{ examenes.get(usuario.username, {}).get('practico', 'No Asignado') }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-moderna p-4">
+        <h5 class="fw-bold text-primary mb-3">🚗 Mi Ruta de Formación</h5>
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Tipo</th>
+                    <th>Fecha y Hora</th>
+                    <th>Recurso / Vehículo</th>
+                    <th class="text-center">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in clases_e %}
+                <tr>
+                    <td>{{ '<span class="badge bg-info text-dark">🚗 Práctica</span>'|safe if c.tipo == 'practica' else '<span class="badge bg-secondary">📘 Teórica</span>'|safe }}</td>
+                    <td>{{ c.fecha }} a las {{ c.hora }}</td>
+                    <td>{{ c.vehiculo if c.vehiculo else 'Salón Teórico' }}</td>
+                    <td class="text-center">
+                        {{ '<span class="badge bg-success">✓ Completada</span>'|safe if c.completada else '<span class="badge bg-warning text-dark">⏳ Pendiente</span>'|safe }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- ================= VISTA: PROFESOR ================= -->
+    {% if usuario.rol == 'profesor' %}
+    <div class="row g-4">
+        <div class="col-md-7">
+            <div class="card card-moderna p-4 h-100">
+                <h5 class="fw-bold text-success mb-3">📋 Clases Diarias Asignadas</h5>
+                <table class="table table-hover align-middle">
+                    <tbody>
+                        {% for c in clases_p %}
+                        <tr>
+                            <td><strong>{{ c.estudiante_username }}</strong><br><small>{{ c.fecha }} — {{ c.hora }}</small></td>
+                            <td>{{ '🚗 Práctica' if c.tipo == 'practica' else '📘 Teórica' }}</td>
+                            <td class="text-end">
+                                {% if not c.completada %}
+                                    <form action="/academia/confirmar-asistencia" method="POST">
+                                        <input type="hidden" name="clase_id" value="{{ c.id }}">
+                                        <button type="submit" class="btn btn-sm btn-success">Confirmar Asistencia</button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-success fw-bold small">✓ Asistió</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card card-moderna p-4 h-100">
+                <h5 class="fw-bold text-danger mb-3">📝 Evaluar Exámenes Pendientes</h5>
+                {% set examenes_pendientes = false %}
+                {% for est, ex in examenes.items() %}
+                    {% if ex.teorico == 'Asignado' or ex.practico == 'Asignado' %}
+                        {% set examenes_pendientes = true %}
+                        <div class="border p-3 rounded mb-2 bg-light">
+                            <h6 class="fw-bold mb-1">{{ est }}</h6>
+                            {% if ex.teorico == 'Asignado' %}
+                                <form action="/academia/evaluar-examen" method="POST" class="d-flex align-items-center justify-content-between mt-2">
+                                    <span class="small">Examen Teórico:</span>
+                                    <input type="hidden" name="estudiante_username" value="{{ est }}">
+                                    <input type="hidden" name="tipo_examen" value="teorico">
+                                    <div>
+                                        <button name="resultado" value="Aprobado" class="btn btn-sm btn-success me-1">Aprobar</button>
+                                        <button name="resultado" value="Reprobado" class="btn btn-sm btn-danger">Reprobar</button>
+                                    </div>
+                                </form>
+                            {% endif %}
+                            {% if ex.practico == 'Asignado' %}
+                                <form action="/academia/evaluar-examen" method="POST" class="d-flex align-items-center justify-content-between mt-2">
+                                    <span class="small">Examen Práctico:</span>
+                                    <input type="hidden" name="estudiante_username" value="{{ est }}">
+                                    <input type="hidden" name="tipo_examen" value="practico">
+                                    <div>
+                                        <button name="resultado" value="Aprobado" class="btn btn-sm btn-success me-1">Aprobar</button>
+                                        <button name="resultado" value="Reprobado" class="btn btn-sm btn-danger">Reprobar</button>
+                                    </div>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                {% if not examenes_pendientes %}
+                    <p class="text-muted small">No hay exámenes asignados por calificar en este momento.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ================= VISTA: RECEPCIONISTA ================= -->
+{% if usuario.rol == 'recepcionista' %}
+    <div class="row g-4">
+        
+        <div class="col-md-4">
+            <div class="card card-moderna p-4 mb-4" style="max-height: 500px; overflow-y: auto;">
+                <h5 class="fw-bold text-dark mb-3">👥 Usuarios Registrados</h5>
+                <p class="text-muted small">Lista global de profesores y estudiantes en el sistema.</p>
+                
+                {% for username_usr, datos_usr in todos_usuarios.items() %}
+                    {% if username_usr != usuario.username %}
+                        <div class="border p-2 rounded bg-white shadow-sm mb-2 d-flex align-items-center justify-content-between">
+                            <div>
+                                <strong class="d-block text-dark" style="font-size: 0.9rem;">{{ datos_usr.nombre }}</strong>
+                                <small class="text-muted">@{{ username_usr }} — </small>
+                                {% if datos_usr.rol == 'profesor' %}
+                                    <span class="badge bg-success-subtle text-success" style="font-size: 0.7rem;">Profesor</span>
+                                {% else %}
+                                    <span class="badge bg-primary-subtle text-primary" style="font-size: 0.7rem;">Estudiante</span>
+                                {% endif %}
+                            </div>
+                            
+                            <form action="/academia/eliminar-usuario" method="POST" onsubmit="return confirm('¿Eliminar a {{ datos_usr.nombre }}? Se borrarán sus datos de acceso y exámenes.');">
+                                <input type="hidden" name="estudiante_username" value="{{ username_usr }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" style="font-size: 0.75rem; border-radius: 4px;">
+                                    🗑️
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- COLUMNA 2: CONTROL DE EXÁMENES (SOLO ESTUDIANTES) -->
+        <div class="col-md-4">
+            <div class="card card-moderna p-4 mb-4" style="max-height: 500px; overflow-y: auto;">
+                <h5 class="fw-bold text-dark mb-3">🎯 Control de Exámenes</h5>
+                <p class="text-muted small">Progreso de prerrequisitos viales de los alumnos.</p>
+                
+                {% set contador_estudiantes = [] %}
+                {% for est, ex in examenes.items() %}
+                    <!-- Filtro estricto: Solo mostramos si el usuario existe y es un estudiante registrado -->
+                    {% if todos_usuarios.get(est) and todos_usuarios[est].rol == 'estudiante' %}
+                        {% if contador_estudiantes.append(1) %}{% endif %}
+                        <div class="border p-3 rounded bg-white shadow-sm mb-3">
+                            <h6 class="fw-bold text-primary mb-2">{{ todos_usuarios[est].nombre }} <br><small class="text-muted" style="font-size:0.75rem;">(@{{ est }})</small></h6>
+                            
+                            <!-- Control Teórico -->
+                            <div class="mb-2 border-bottom pb-2">
+                                <span class="small d-block text-muted">Teórico: 
+                                    {% if ex.get('teorico') == 'Aprobado' %}
+                                        <span class="badge bg-success-subtle text-success">Aprobado</span>
+                                    {% elif ex.get('teorico') == 'Reprobado' %}
+                                        <span class="badge bg-danger-subtle text-danger">Reprobado</span>
+                                    {% elif ex.get('teorico') == 'Asignado' %}
+                                        <span class="badge bg-warning-subtle text-warning">Asignado</span>
+                                    {% else %}
+                                        <strong>{{ ex.get('teorico', 'No Asignado') }}</strong>
+                                    {% endif %}
+                                </span>
+                                
+                                <!-- Habilitamos el botón si completó clases Y el examen está No Asignado O Reprobado -->
+                                {% if modulo_clases.tiene_todas_teoricas_completas(est) and (ex.get('teorico', 'No Asignado') == 'No Asignado' or ex.get('teorico') == 'Reprobado') %}
+                                    <form action="/academia/asignar-examen" method="POST" class="mt-1">
+                                        <input type="hidden" name="estudiante_username" value="{{ est }}">
+                                        <input type="hidden" name="tipo_examen" value="teorico">
+                                        <button type="submit" class="btn btn-xs btn-warning w-100 py-1 font-monospace" style="font-size:0.75rem;">
+                                            {% if ex.get('teorico') == 'Reprobado' %} Reasignar Examen Teórico {% else %} Asignar Examen Teórico {% endif %}
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+
+                            <!-- Control Práctico -->
+                            <div>
+                                <span class="small d-block text-muted">Práctico: 
+                                    {% if ex.get('practico') == 'Aprobado' %}
+                                        <span class="badge bg-success-subtle text-success">Aprobado</span>
+                                    {% elif ex.get('practico') == 'Reprobado' %}
+                                        <span class="badge bg-danger-subtle text-danger">Reprobado</span>
+                                    {% elif ex.get('practico') == 'Asignado' %}
+                                        <span class="badge bg-warning-subtle text-warning">Asignado</span>
+                                    {% else %}
+                                        <strong>{{ ex.get('practico', 'No Asignado') }}</strong>
+                                    {% endif %}
+                                </span>
+                                
+                                <!-- Habilitamos el botón si completó prácticas Y el examen está No Asignado O Reprobado -->
+                                {% if modulo_clases.tiene_todas_practicas_completas(est) and (ex.get('practico', 'No Asignado') == 'No Asignado' or ex.get('practico') == 'Reprobado') %}
+                                    <form action="/academia/asignar-examen" method="POST" class="mt-1">
+                                        <input type="hidden" name="estudiante_username" value="{{ est }}">
+                                        <input type="hidden" name="tipo_examen" value="practico">
+                                        <button type="submit" class="btn btn-xs btn-danger w-100 py-1 font-monospace" style="font-size:0.75rem;">
+                                            {% if ex.get('practico') == 'Reprobado' %} Reasignar Examen Práctico {% else %} Asignar Examen Práctico {% endif %}
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if contador_estudiantes|length == 0 %}
+                    <p class="text-muted small">No hay alumnos en proceso de examen actualmente.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-moderna p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3">🚗 Asignar Nueva Clase</h5>
+                <form action="/academia/crear-clase" method="POST">
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Username del Estudiante</label>
+                        <input type="text" class="form-control form-control-custom" name="estudiante" placeholder="Ej: pedro_perez" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Username del Profesor</label>
+                        <input type="text" class="form-control form-control-custom" name="profesor" placeholder="Ej: carlos_profesor" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Tipo de Clase</label>
+                        <select class="form-select form-control-custom" name="tipo" id="tipoClaseSelect" onchange="toggleVehiculoField()">
+                            <option value="teorica">Teórica</option>
+                            <option value="practica">Práctica</option>
+                        </select>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col"><input type="date" class="form-control form-control-custom" name="fecha" required></div>
+                        <div class="col"><input type="time" class="form-control form-control-custom" name="hora" required></div>
+                    </div>
+                    <div class="mb-3" id="vehiculoFormGroup" style="display:none;">
+                        <label class="form-label small fw-bold">Vehículo</label>
+                        <input type="text" class="form-control form-control-custom" name="vehiculo" placeholder="Ej: Chevrolet Onix - ABC123">
+                    </div>
+                    <button type="submit" class="btn btn-moderno w-100">Agendar Clase</button>
+                </form>
+            </div>
+
+            <div class="p-4 bg-white rounded-3 border shadow-sm">
+                <h5 class="fw-bold text-dark mb-2">Matrículas</h5>
+                <p class="text-muted small">Crea credenciales en la nube para nuevos integrantes.</p>
+                <a href="/academia/registrar" class="btn btn-outline-primary fw-bold w-100 py-2">Registrar Usuarios</a>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        function toggleVehiculoField() {
+            var select = document.getElementById('tipoClaseSelect');
+            var group = document.getElementById('vehiculoFormGroup');
+            group.style.display = (select.value === 'practica') ? 'block' : 'none';
+        }
+    </script>
+    {% endif %}
+
+</div>
+{% endblock %}
