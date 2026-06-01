@@ -1,17 +1,23 @@
+import os
+import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# ================= CONFIGURACIÓN DE FIREBASE =================
-# Recuerda que debes tener tu archivo JSON de credenciales en la misma carpeta
+# ================= CONFIGURACIÓN DE FIREBASE INTELIGENTE =================
 try:
-    cred = credentials.Certificate("serviceAccountKey.json")
+    # 1. Si estamos en Render, leerá la variable de entorno en memoria
+    if os.environ.get("FIREBASE_JSON"):
+        firebase_datos = json.loads(os.environ.get("FIREBASE_JSON"))
+        cred = credentials.Certificate(firebase_datos)
+    else:
+        # 2. Si estamos en tu computadora local, buscará el archivo físico como antes
+        cred = credentials.Certificate("serviceAccountKey.json")
+        
     firebase_admin.initialize_app(cred)
 except ValueError:
-    # Evita errores si la app ya fue inicializada en otra parte del ciclo de ejecución
     pass
 
 db = firestore.client()
-
 # ================= GESTIÓN DE USUARIOS (CRUD) =================
 
 def obtener_usuario(username):
