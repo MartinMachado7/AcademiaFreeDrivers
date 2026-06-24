@@ -1,11 +1,11 @@
 /* 1. Variables de entorno para cambiar colores fácilmente */
 :root {
-    --color-fondo: #f8fafc;       /* Gris ultra claro moderno */
-    --color-primario: #a50808;    /* Azul eléctrico moderno */
+    --color-fondo: #f8fafc;
+    --color-primario: #a50808;    
     --color-primario-hover: #5d5d5f;
-    --color-texto-oscuro: #0f172a;/* Negro pizarra para textos principales */
-    --color-texto-mutado: #64748b;/* Gris para textos secundarios */
-    --borde-redondeado: 12px;     /* Bordes suaves en lugar de esquinas rectas */
+    --color-texto-oscuro: #0f172a;
+    --color-texto-mutado: #64748b;
+    --borde-redondeado: 12px;     
     --sombra-suave: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
     --sombra-tarjeta: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
